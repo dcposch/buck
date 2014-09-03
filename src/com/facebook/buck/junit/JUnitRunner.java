@@ -119,7 +119,9 @@ public final class JUnitRunner {
       }
     };
 
+    System.out.println("JUnitRunner running");
     for (String className : testClassNames) {
+      System.out.println("JUnitRunner " + className);
       final Class<?> testClass = Class.forName(className);
       Ignore ignore = testClass.getAnnotation(Ignore.class);
       boolean isTestClassIgnored = (ignore != null || !isTestClass(testClass));
@@ -129,6 +131,8 @@ public final class JUnitRunner {
         // Test case has @Ignore annotation, so do nothing.
         results = Collections.emptyList();
       } else {
+        System.out.println("JUnitRunner running " + className);
+
         results = new ArrayList<>();
         JUnitCore jUnitCore = new JUnitCore();
 
@@ -140,11 +144,14 @@ public final class JUnitRunner {
         jUnitCore.run(request);
       }
 
+      System.out.println("JUnitRunner raw results: "+results);
       results = interpretResults(className, results);
+      System.out.println("JUnitRunner interp results: "+results);
       if (results != null) {
         writeResult(className, results);
       }
     }
+    System.out.println("JUnitRunner done");
   }
 
   /**
