@@ -81,15 +81,15 @@ public class AssumptionViolationsTest {
 
   @Test
   public void shouldFailIfOneTestFailsJunit() throws IOException {
-    shouldFailIfOneTestFails("Junit");
+    shouldFailIfOneTestFails("Junit", 1);
   }
 
   @Test
   public void shouldFailIfOneTestFailsTestNG() throws IOException {
-    shouldFailIfOneTestFails("TestNG");
+    shouldFailIfOneTestFails("TestNG", 0);
   }
 
-  private void shouldFailIfOneTestFails(String type) throws IOException {
+  private void shouldFailIfOneTestFails(String type, int numSkipped) throws IOException {
     ProjectWorkspace.ProcessResult result = workspace.runBuckCommand(
         "test",
         "--all",
@@ -98,7 +98,7 @@ public class AssumptionViolationsTest {
     result.assertTestFailure();
     String output = result.getStderr();
     assertThat(output, containsRegex(createBuckTestOutputLineRegex(
-        "FAIL", 0, 1, 1, "com.example.FailingTest"+type)));
+        "FAIL", 0, numSkipped, 1, "com.example.FailingTest"+type)));
     assertThat(output, containsRegex(createBuckTestOutputLineRegex(
         "PASS", 1, 0, 0, "com.example.PassingTest"+type)));
     assertThat(output,
@@ -125,7 +125,7 @@ public class AssumptionViolationsTest {
   @Test
   public void shouldSkipIndividualTestsWithDistinctErrorMessages() throws IOException {
     ProjectWorkspace.ProcessResult result = workspace.runBuckCommand(
-        "test", "--all", "--filter", "Test(A|B)");
+        "test", "--all", "--filter", "Test(A|B)Junit");
     List<BuckEvent> capturedEvents = result.getCapturedEvents();
 
     IndividualTestEvent.Finished resultsEvent = null;

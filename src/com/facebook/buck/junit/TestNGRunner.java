@@ -122,16 +122,15 @@ public final class TestNGRunner extends BaseRunner {
     @SuppressWarnings("rawtypes")
     public void transform(ITestAnnotation annotation, Class testClass,
         Constructor testConstructor, Method testMethod) {
-      System.out.println("WTFFF");
       if (!annotation.getEnabled()) {
         return;
       }
-      if(testClass == null || testMethod == null){
+      if(testMethod == null){
         return;
       }
-      String className = testClass.getName();
+      String className = testMethod.getDeclaringClass().getName();
       String methodName = testMethod.getName();
-      System.out.println("WTF "+testClass+" "+testMethod);
+      System.out.println("WTF "+className+" "+methodName);
       TestDescription testDescription = new TestDescription(className, methodName);
       boolean isIncluded = testSelectorList.isIncluded(testDescription);
       seenDescriptions.add(testDescription);
