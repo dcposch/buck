@@ -23,6 +23,7 @@ import org.testng.ITestListener;
 import org.testng.ITestResult;
 import org.testng.TestNG;
 import org.testng.annotations.ITestAnnotation;
+import org.testng.internal.annotations.JDK15AnnotationFinder;
 import org.testng.xml.XmlClass;
 import org.testng.xml.XmlSuite;
 import org.testng.xml.XmlTest;
@@ -52,8 +53,8 @@ public final class TestNGRunner extends BaseRunner {
         results = Collections.emptyList();
       } else {
         results = new ArrayList<>();
-        TestNG tester = new TestNG();
-        tester.setAnnotationTransformer(new FilteringAnnotationTransformer());
+        TestNGWrapper tester = new TestNGWrapper();
+        tester.setAnnoTransformer(new FilteringAnnotationTransformer());
         tester.setXmlSuites(Collections.singletonList(createXmlSuite(testClass)));
         TestListener listener = new TestListener(results);
         tester.addListener(new TestListener(results));
@@ -103,6 +104,17 @@ public final class TestNGRunner extends BaseRunner {
     TestNGRunner runner = new TestNGRunner();
     runner.parseArgs(args);
     runner.runAndExit();
+  }
+
+  public final class TestNGWrapper extends TestNG {
+    /**
+     * The built-in setAnnotationTransformer unfortunately does not work with runSuitesLocally()
+     *
+     * The alternative would be to use the (much heavier) run() method.
+     */
+    public void setAnnoTransformer(IAnnotationTransformer anno) {
+      getConfiguration().setAnnotationFinder(new JDK15AnnotationFinder(anno));
+    }
   }
 
   public class FilteringAnnotationTransformer implements IAnnotationTransformer {
